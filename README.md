@@ -4,7 +4,7 @@
 
 A MATLAB toolbox for MIMO synthetic-aperture radar imaging, channel calibration, and multistatic-to-monostatic conversion.
 
-> **Development history:** Developed locally before publication. These repositories were uploaded together, so their GitHub publication dates do not indicate when development began.
+> **Development history:** Developed locally using Git before publication. These projects were published to GitHub together, so similar upload dates do not indicate when development began.
 
 ## Quick start
 
