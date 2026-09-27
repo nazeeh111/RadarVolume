@@ -2,28 +2,50 @@
 
 # RadarVolume
 
-A MATLAB toolbox for MIMO synthetic-aperture radar imaging, channel calibration, and multistatic-to-monostatic conversion.
+Reconstruct radar volumes in MATLAB from calibrated, uniformly sampled aperture data. The included example focuses two synthetic point targets and exports image slices, complex volumes, and localization measurements without radar hardware.
 
-> **Development history:** Developed locally using Git before publication. These projects were published to GitHub together, so similar upload dates do not indicate when development began.
+The toolbox also includes channel calibration and MIMO array utilities. The supported reconstruction entry point uses monostatic data: each sample represents a transmitter and receiver at the same position.
 
-## Quick start
+## Run the example
 
-Open MATLAB in this repository, then use the branded entry point:
+Open the repository folder in MATLAB R2026a, then run:
 
 ```matlab
-calibrated = radar_volume(rawData, sensorParams, calData, delayOffset);
+addpath('examples');
+outputDir = point_targets();
 ```
 
-The entry point preserves the existing function's arguments, errors, and numerical output. Existing script and function names remain available for compatibility. No sensor starts when you open this repository.
+This creates a new folder under `outputs/` containing two PNG slices, `point-targets.mat`, and CSV/JSON measurements. Each image represents a separate point-target scene. Existing output paths are never overwritten. The example and checks use base MATLAB.
 
-## Inputs and workflows
+## Reconstruct your data
 
-Calibration input layout is channels × vertical scan × horizontal scan × chirp samples. sensorParams requires Slope_MHzperus, Sampling_Rate_ksps, Samples_per_Chirp. Reconstruction and array geometry use additional toolbox functions such as physconst; full reconstruction also requires suitable measured scan data. Calibration files and the tutorial are included.
+```matlab
+frequency = [77e9, 60e12, 1e6, 0];
+[volume, x_mm, y_mm, z_mm] = radar_volume_reconstruct( ...
+    sarData, frequency, 1, 1, 140:10:260, 128);
+```
 
-## Verification
+Supply `sarData` as **vertical positions × horizontal positions × frequency samples**, with rows and columns in increasing physical y and x. The example values specify 1 mm aperture spacing and depths from 140 to 260 mm. All returned axes are in millimeters; `volume` retains complex amplitudes.
 
-Run `run('tests/smoke_test.m')` from the repository root. See [verification details](docs/VERIFICATION.md) for the tested scope and unavailable checks. Computational source and bundled scientific assets are retained byte-for-byte; the added facade and documentation provide the new presentation.
+See [input conventions and reconstruction method](docs/reconstruction.md) for frequency units, sampling assumptions, memory limits, and the distinction from the legacy function.
 
-## License
+## Calibration and existing scripts
 
-Institutional redistribution notices remain in the numerical files. MIT in LICENSE-branding covers only the new documentation, artwork, wrapper, and checks; it does not replace embedded source terms.
+`radar_volume(rawData, sensorParams, calData, delayOffset)` applies channel calibration. Its data layout is **channels × vertical positions × horizontal positions × chirp samples**. See [the calibration check](tests/smoke_test.m) for a complete synthetic input example.
+
+The original seven-argument `reconstructSARimageFFT_3D` call retains its legacy coordinates and output. Existing array geometry, multistatic conversion, calibration files, and tutorial remain available. The high-level measured-data script needs suitable scans and additional toolbox functions such as `physconst`.
+
+## Checks and limits
+
+```matlab
+run('tests/smoke_test.m');
+run('tests/reconstruction_test.m');
+```
+
+The checks cover calibration, physical coordinate signs and units, odd/even sampling grids, depth focus, invalid inputs, and legacy compatibility. [Verification details](docs/VERIFICATION.md) record the evidence. Synthetic localization does not establish measured radar accuracy or physical resolution; the full measured MIMO pipeline has not been validated here.
+
+## Project history and license
+
+Initial publication followed local Git development; GitHub upload dates do not represent the start of that work.
+
+Institutional redistribution notices remain in the numerical files. [LICENSE-branding](LICENSE-branding) covers the new documentation, artwork, wrappers, and checks under MIT; it does not replace embedded source terms.

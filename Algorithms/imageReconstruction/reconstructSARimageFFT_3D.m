@@ -11,10 +11,12 @@
 %  Redistributions in binary form must reproduce the above copyright notice
 %%
 
-function [sarImage,xRangeT_mm,yRangeT_mm,zRangeT_mm] = reconstructSARimageFFT_3D(sarData,frequency,xStepM,yStepM,xySizeT,zTarget,nFFTkXY)
+function [sarImage,xRangeT_mm,yRangeT_mm,zRangeT_mm] = reconstructSARimageFFT_3D(sarData,frequency,xStepM,yStepM,xySizeT,zTarget,nFFTkXY,coordinateMode)
 % For wideband processing:
 % -------------------------------------------------------------------------
 % sarData: should be yPointM x xPointM x nSample
+% Optional coordinateMode: 'legacy' (default) or 'physical'. Physical mode
+% uses FFT-aligned spatial frequencies and increasing x/y scan coordinates.
 
 
 % Example function calls, see details below
@@ -43,6 +45,17 @@ function [sarImage,xRangeT_mm,yRangeT_mm,zRangeT_mm] = reconstructSARimageFFT_3D
 
 %% Code Starts
 % profile on
+
+if nargin < 8
+    coordinateMode = 'legacy';
+end
+if ~(ischar(coordinateMode) || (isstring(coordinateMode) && isscalar(coordinateMode)))
+    error('coordinateMode must be ''legacy'' or ''physical''.');
+end
+isPhysicalCoordinates = strcmp(coordinateMode,'physical');
+if ~isPhysicalCoordinates && ~strcmp(coordinateMode,'legacy')
+    error('coordinateMode must be ''legacy'' or ''physical''.');
+end
 
 
 %% Define Fixed Parameters
@@ -108,10 +121,18 @@ end
 %% Define Wavenumbers
 %-------------------------------------------------------------------------%
 wSx = 2*pi/(xStepT*1e-3); % Sampling frequency for Target Domain
-kX = linspace(-(wSx/2),(wSx/2),nFFTkX); % kX-Domain
+if isPhysicalCoordinates
+    kX = (-floor(nFFTkX/2):ceil(nFFTkX/2)-1) * wSx/nFFTkX;
+else
+    kX = linspace(-(wSx/2),(wSx/2),nFFTkX); % kX-Domain
+end
 
 wSy = 2*pi/(yStepT*1e-3); % Sampling frequency for Target Domain
-kY = (linspace(-(wSy/2),(wSy/2),nFFTkY)).'; % kY-Domain
+if isPhysicalCoordinates
+    kY = ((-floor(nFFTkY/2):ceil(nFFTkY/2)-1) * wSy/nFFTkY).';
+else
+    kY = (linspace(-(wSy/2),(wSy/2),nFFTkY)).'; % kY-Domain
+end
 
 
 %% Zero Padding to sarData to Locate Target at Center
@@ -157,7 +178,11 @@ if is2DImaging
     
     sarDataFFT = sarDataFFT .* phaseFactor;
     
-    sarImage = ifft2(sarDataFFT);
+    if isPhysicalCoordinates
+        sarImage = ifft2(ifftshift(ifftshift(sarDataFFT,1),2));
+    else
+        sarImage = ifft2(sarDataFFT);
+    end
     sarImage = sum(sarImage,3);
 end
 
@@ -181,18 +206,29 @@ if is3DImaging
         
         sarImageIFFT(:,:,n) = sum(sarDataFFT_Corrected,3);
     end
-    sarImage = ifft2(sarImageIFFT);
+    if isPhysicalCoordinates
+        sarImage = ifft2(ifftshift(ifftshift(sarImageIFFT,1),2));
+    else
+        sarImage = ifft2(sarImageIFFT);
+    end
 end
 
 
 %% Define Target Axis
 %-------------------------------------------------------------------------%
-xRangeT_mm = xStepT * (-(nFFTkX-1)/2 : (nFFTkX-1)/2); % xStepM is in mm
-yRangeT_mm = yStepT * (-(nFFTkY-1)/2 : (nFFTkY-1)/2); % xStepM is in mm
+if isPhysicalCoordinates
+    xRangeT_mm = xStepT * ((1:nFFTkX) - (indexZeroPadStart_x + (xPointM-1)/2));
+    yRangeT_mm = yStepT * ((1:nFFTkY) - (indexZeroPadStart_y + (yPointM-1)/2));
+else
+    xRangeT_mm = xStepT * (-(nFFTkX-1)/2 : (nFFTkX-1)/2); % xStepM is in mm
+    yRangeT_mm = yStepT * (-(nFFTkY-1)/2 : (nFFTkY-1)/2); % xStepM is in mm
+end
 
 
 %% Flip Target in x-Axis
-sarImage = flip(sarImage,2);
+if ~isPhysicalCoordinates
+    sarImage = flip(sarImage,2);
+end
 
 
 %% Crop the Image for Related Region
