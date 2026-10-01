@@ -1,5 +1,3 @@
-![RadarVolume](docs/banner.svg)
-
 # RadarVolume
 
 Builds on [3D-MIMO-SAR_Imaging](https://github.com/meminyanik/3D-MIMO-SAR_Imaging/tree/60a08620929ddc35fdc3f09a54da9d77af1a2026), developed by **Muhammet Emin Yanik**, with advisor **Murat Torlak**, at The University of Texas at Dallas. RadarVolume adds the supported entry point, synthetic example, checks and opt-in physical-coordinate mode described below.
