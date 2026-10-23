@@ -38,3 +38,22 @@ The two independent example scenes produced these results:
 ## Limits
 
 The point model omits antenna patterns, range attenuation, noise, calibration errors, and multistatic conversion. Selecting the correct sampled depth does not establish 10 mm physical depth resolution. Measured target accuracy and the full MIMO acquisition/reconstruction pipeline remain unverified. Array utilities that call `physconst` need additional toolbox support; the new monostatic example does not.
+
+## Retained example figure, 2026-10-23
+
+A fresh run at source revision `2b6b8f90aaa37e6b295a25b28b9293a971ff430c` used MATLAB R2026a Update 5 (26.1.0.3346908). Both supplied test scripts passed, and the unchanged `point_targets` example exported two scenes. [Retained metrics](figures/metrics.json) are copied directly from that run. The initial sandboxed MATLAB launch failed its processor-feature check; the approved native run completed.
+
+[PNG figure](figures/focus.png) · [SVG figure](figures/focus.svg) · [Plotting source](figures/render_point_targets.m)
+
+To recreate the figure from a new result directory:
+
+```matlab
+addpath('examples');
+outputDir = point_targets();
+addpath('docs/figures');
+render_point_targets(outputDir);
+```
+
+The plotting function reads `point-targets.mat` from that directory, writes new `focus.png` and `focus.svg` beside it, and refuses existing figure paths. It does not run reconstruction or change its outputs. The top panels divide magnitude slices by their own maxima at the target depths. The lower curves sample each target's lateral position and divide by their own maxima. PNG and SVG contain the same figure; the SVG includes raster heatmaps with vector labels and curves. The underlying MAT output can be regenerated with the example; it is not duplicated in the repository.
+
+All quantities are synthetic. There are no repeated trials or uncertainty bars. Lateral axes in the figure are limited to −32…32 mm, the measurement aperture's extent, while the reconstruction spans the full padded grid. No normalization permits amplitude comparison between the two scenes.

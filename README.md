@@ -1,10 +1,16 @@
 # RadarVolume
 
-Reconstruct radar volumes in MATLAB from calibrated, uniformly sampled aperture data. The included example focuses two synthetic point targets and exports image slices, complex volumes, and localization measurements without radar hardware.
+Focus calibrated radar samples into a 3D volume in MATLAB. Try two synthetic point scenes without hardware, then inspect complex outputs and physical coordinates.
 
-RadarVolume adds the supported reconstruction entry point, synthetic example, checks and opt-in physical-coordinate mode described below.
+## See the focus
 
-The toolbox also includes channel calibration and MIMO array utilities. The supported reconstruction entry point uses monostatic data: each sample represents a transmitter and receiver at the same position.
+![Two synthetic point scenes: normalized lateral magnitude slices and sampled depth profiles](docs/figures/focus.png)
+
+[Open the figure at full size](docs/figures/focus.png).
+
+Two **independent, phase-only synthetic scenes**, generated and reconstructed with the included MATLAB example. The top panels show magnitude at each target's depth; the curves show focus across depth at that target's lateral position. Each panel and curve is normalized separately. The sampled peaks land at (12, −8, 200) mm and (−12, 8, 220) mm. These are synthetic checks, not measured radar accuracy or physical-resolution estimates.
+
+The reconstruction transforms the two aperture axes into spatial frequencies, applies a propagation phase for each requested depth, then transforms back to a complex volume. [Method and coordinate conventions](docs/reconstruction.md) · [Figure source and run record](docs/VERIFICATION.md#retained-example-figure-2026-10-23).
 
 ## Run the example
 
@@ -24,6 +30,8 @@ frequency = [77e9, 60e12, 1e6, 0];
 [volume, x_mm, y_mm, z_mm] = radar_volume_reconstruct( ...
     sarData, frequency, 1, 1, 140:10:260, 128);
 ```
+
+The supported path uses monostatic data: each sample represents a transmitter and receiver at the same position.
 
 Supply `sarData` as **vertical positions × horizontal positions × frequency samples**, with rows and columns in increasing physical y and x. The example values specify 1 mm aperture spacing and depths from 140 to 260 mm. All returned axes are in millimeters; `volume` retains complex amplitudes.
 
