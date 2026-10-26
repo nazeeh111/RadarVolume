@@ -54,8 +54,6 @@ The checks cover calibration, physical coordinate signs and units, odd/even samp
 
 ## Source and license
 
-Builds on [3D-MIMO-SAR_Imaging](https://github.com/meminyanik/3D-MIMO-SAR_Imaging/tree/60a08620929ddc35fdc3f09a54da9d77af1a2026), developed by **Muhammet Emin Yanik**, with advisor **Murat Torlak**, at The University of Texas at Dallas.
-
-The original nine-file source snapshot matches the pinned upstream project. Eight current files remain exact; the reconstruction function adds a documented opt-in coordinate mode while preserving its original notices and default path. [Source and additions](NOTICE.md) records that distinction.
+[NOTICE.md](NOTICE.md) records the retained source and added physical-coordinate mode.
 
 Institutional redistribution notices remain in the numerical files. [LICENSE-branding](LICENSE-branding) covers the new documentation, artwork, wrappers, and checks under MIT; it does not replace embedded source terms.
